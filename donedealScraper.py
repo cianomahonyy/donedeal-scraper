@@ -13,37 +13,48 @@ searchURL = search.replace(' ','%20')
 priceRange = ['100','800']
 
 listOfPrices = []
-
-for i in range(1, 26):
-	url = 'https://www.donedeal.ie/all?words=' + searchURL + '&area=&campaign=14' + '&start=' + str(page) + '&price_from=' + priceRange[0] + '&price_to=' + priceRange[1]
-	page = page + 28
-	print(url)
-	response = requests.get(url, headers=headers)
-	c = response.content
-
-	soup = BeautifulSoup(c, features='html.parser')
-
-	prices = soup.find_all('p', 'card__price')
-
-	for price in prices:
-		itemPrice = price.get_text()
-		itemPrice = itemPrice[1:7]
-		itemPrice = itemPrice.replace(",","")
-		if(itemPrice.isdigit()):
-			itemPrice = int(itemPrice)
-			listOfPrices.append(itemPrice)
-			print(itemPrice)
-
-	print(listOfPrices)
-
-
 xPlot = []
-for x in range(0, len(listOfPrices)):
-	xPlot.append(x)
 
-averagePrice = sum(listOfPrices) / float(len(listOfPrices))
-averagePrice = round(averagePrice)
-print('The average price of a ' + search + " is €" + str(averagePrice))
+
+def priceFinder(page, searchURL, priceRange):
+	for i in range(1, 26):
+		url = 'https://www.donedeal.ie/all?words=' + searchURL + '&area=&campaign=14' + '&start=' + str(page) + '&price_from=' + priceRange[0] + '&price_to=' + priceRange[1]
+		page = page + 28
+		print(url)
+		response = requests.get(url, headers=headers)
+		c = response.content
+
+		soup = BeautifulSoup(c, features='html.parser')
+
+		prices = soup.find_all('p', 'card__price')
+
+		for price in prices:
+			itemPrice = price.get_text()
+			itemPrice = itemPrice[1:7]
+			itemPrice = itemPrice.replace(",","")
+			if(itemPrice.isdigit()):
+				itemPrice = int(itemPrice)
+				listOfPrices.append(itemPrice)
+				print(itemPrice)
+
+		print(listOfPrices)
+
+
+def xAxisMaker(xListOfPrices):
+	for x in range(0, len(xListOfPrices)):
+		xPlot.append(x)
+
+
+def getAverage(listOfPrices):
+	averagePrice = sum(listOfPrices) / float(len(listOfPrices))
+	averagePrice = round(averagePrice)
+	print('The average price of a ' + search + " is €" + str(averagePrice))
+	return averagePrice
+
+
+priceFinder(page, searchURL, priceRange)
+getAverage(listOfPrices)
+xAxisMaker(listOfPrices)
 
 plt.scatter(xPlot, listOfPrices, label='skitscat', color='k')
 
